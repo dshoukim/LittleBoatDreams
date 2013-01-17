@@ -60,28 +60,31 @@ LBD.Tag.prototype.tagFocus_double = function(){
 
 // Begin Collection Functions
 
-
-
-LBD.Collection = function()
-{
-	this.title = function(){
-		// Untitled Collection concat w/
-		// # of other Untitled Collections...
-		return "";
-	};
-	this.tags = {}; // tags = { tagID-1 : [ "cat-1", "cat-2", "cat4"], tagID-2 : ["cat2"]... }
+LBD.Collection = function(){
+	var that = this;
+	this.title = "";
+	this.length = 0;
+	this.tags = {}; /
 	this.tagscores = {}; // tagscores = { "cat-1" : 1, "cat-2" : 2, "cat-3" : 0, etc...}
-	
-	this.comment = "";
+	this.comments={ "commentID":[] }//{commentID:[leftby, leftfor, ondate, ""]};
 }
-
+LBD.Collection.prototype.getnumTags = function()
+{ // helper function for graphical representation
+	var size = 0, key;
+	for (key in this){
+		if(this.hasOwnProperty(key)) size ++;
+	}
+	return size
+}
+LBD.
 LBD.Collection.prototype.newName = function(newName)
 {
-	this.title = toString(newName);
+	this.title = toString(newName.val());
 }
 
 LBD.Collection.prototype.addTag = function(tagID)
 {
+	//getTagID through jquery, should live in a data-tag in the element.
 	this.tags[toString(tagID)] = [];
 }
 

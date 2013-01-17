@@ -1,3 +1,6 @@
+function checkforSpecials(){}
+function checkforCaps(){}
+function checkforNums(){}
 
 function ResetValidator(){
     
