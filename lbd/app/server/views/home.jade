@@ -1,17 +1,27 @@
-
-div.navbar.navbar-fixed-top
-    div.navbar-inner
-        div.container-fluid
-            ul#global-nav.nav.pull-left
-                a(href='#').brand Little Boat Dreams
-                a(href='/browse').brand Browse
-            button#btn-logout.btn.btn-primary
-                i.icon-lock.icon-white
-                | Sign Out
-
+.navbar.navbar-fixed-top
+	.navbar-inner
+		.container-fluid
+			ul#global-nav.nav.pull-left
+				a(href='#').brand Little Boat Dreams
+				a(href='/browse').brand Browse
+				a(href='/settings').brand Account Settings
+			button#btn-logout.btn.btn-primary
+				i.icon-lock.icon-white
+				| Sign Out
+.container-fluid
+	.row-fluid
+		.span3
+			.well.siebar-nav
+				ul.nav.nav-list
+					li.nav-header hi  
+					li.nav-header howdy
+					li hello
+					li.nav-header yo
+					li.nav-header hi
 include account
 include modals/alert
 include modals/confirm
 
-script(src='/js/views/home.js')
-script(src='/js/controllers/homeController.js')
+
+script(src='/js/views/settings.js')
+script(src='/js/controllers/settingsController.js')

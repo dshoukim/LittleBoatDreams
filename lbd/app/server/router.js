@@ -2,12 +2,13 @@
 var CT = require('./modules/country-list');
 var AM = require('./modules/account-manager');
 var EM = require('./modules/email-dispatcher');
+var CM = require('./modules/collections-manager');
 
 module.exports = function(app) {
 
 // main login page //
 
-	app.get('/', function(req, res){
+	app.get('/', function(req, res){ //get root
 	// check if the user's credentials are saved in a cookie //
 		if (req.cookies.user == undefined || req.cookies.pass == undefined){
 			res.render('login', { locals: { title: 'Hello - Please Login To Your Account' }});
@@ -38,15 +39,28 @@ module.exports = function(app) {
 			}
 		});
 	});
-	
+	app.get('/home', function(req, res){
 // logged-in user homepage //
+	    if (req.session.user == null){
+			res.redirect('/');
+	    }else{
+			res.render('home', {
+				locals: {
+					title : 'Home',
+					countries : CT,
+					udata : req.session.user
+				}
+			});
+	    }
+	});
+
 	
-	app.get('/home', function(req, res) {
+	app.get('/settings', function(req, res) {
 	    if (req.session.user == null){
 	// if user is not logged-in redirect back to login page //
 	        res.redirect('/');
 	    }   else{
-			res.render('home', {
+			res.render('settings', {
 				locals: {
 					title : 'Little Boat Dreams',
 					countries : CT,
@@ -56,7 +70,7 @@ module.exports = function(app) {
 	    }
 	});
 	
-	app.post('/home', function(req, res){
+	app.post('/settings', function(req, res){
 		if (req.param('user') != undefined) {
 			AM.updateAccount({
 				user 		: req.param('user'),
