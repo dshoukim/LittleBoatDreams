@@ -6,9 +6,13 @@
 var LBD = LBD || { REVISION: "2"};
 var IMG_FULLSIZE = //1654 x 250 px.
 function scaleToFit()
-var LBD.Tag = function(filepath)
+var LBD.Utils = function(){}
+LBD.Utils.prototype.html_to_three = function(){}
+LBD.Utils.prototype.three_to_html = function(){}
+
+var LBD.Tag = function() /*filepath?*/
 {
-	this.imgPath = filepath;
+	this.imgPath ;
 	this.material;
 	this.type = "Default";
 	this.transcription = "";
