@@ -5,7 +5,7 @@ var moment 		= require('moment');
 
 var dbPort 		= 27017;
 var dbHost 		= global.host;
-var dbName 		= 'LBD-login';
+var dbName 		= 'lbdatabase';
 
 /* establish the database connection */
 

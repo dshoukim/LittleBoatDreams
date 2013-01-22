@@ -209,9 +209,6 @@ function convertDragDrop(ev){
 	// converts the Text category object into an object recognized by webGL renderer
 }
 
-function signup_ajax(){
-	s
-}
 
 var Manager = Manager || {}
 
@@ -228,5 +225,4 @@ var categories =
 	"Drawings": drawings
 	"Misc.": misc
 };
-function findNearest Neighbor
 

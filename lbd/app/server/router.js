@@ -2,6 +2,7 @@
 var CT = require('./modules/country-list');
 var AM = require('./modules/account-manager');
 var EM = require('./modules/email-dispatcher');
+var CL = require('./modules/collection-manager');
 
 module.exports = function(app) {
 
@@ -84,6 +85,8 @@ module.exports = function(app) {
 		}
 	});
 	
+// viewing and managing collections //
+	//app.get('/collections', function(req, res))
 // creating new accounts //
 	
 	app.get('/signup', function(req, res) {
@@ -106,6 +109,11 @@ module.exports = function(app) {
 		});
 	});
 
+
+	
+	app.get('/collections', function(req, res) { res.render('collections', { title: 'My Collections', countries:CT}); });
+	
+	app.get('/browse', function(req, res) { res.render('browse', { title: 'Browse Tags', countries:CT}); });
 // password reset //
 
 	app.post('/lost-password', function(req, res){
@@ -183,7 +191,7 @@ module.exports = function(app) {
 			res.redirect('/print');	
 		});
 	});
-	
+
 	app.get('*', function(req, res) { res.render('404', { title: 'Page Not Found'}); });
 
 };
