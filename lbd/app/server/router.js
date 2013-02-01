@@ -1,13 +1,14 @@
-
+var DB = require('./modules/db-manager');
 var CT = require('./modules/country-list');
 var AM = require('./modules/account-manager');
 var EM = require('./modules/email-dispatcher');
-var CL = require('./modules/collection-manager');
+var CM = require('./modules/collection-manager');
+var am = require('./modules/accountsmanager');
+
 
 module.exports = function(app) {
 
 // main login page //
-
 	app.get('/', function(req, res){
 	// check if the user's credentials are saved in a cookie //
 		if (req.cookies.user == undefined || req.cookies.pass == undefined){
@@ -47,6 +48,7 @@ module.exports = function(app) {
 	// if user is not logged-in redirect back to login page //
 	        res.redirect('/');
 	    }   else{
+			console.log();
 			res.render('home', {
 				locals: {
 					title : 'Little Boat Dreams',
@@ -56,7 +58,7 @@ module.exports = function(app) {
 			});
 	    }
 	});
-	
+
 	app.post('/home', function(req, res){
 		if (req.param('user') != undefined) {
 			AM.updateAccount({
@@ -94,7 +96,7 @@ module.exports = function(app) {
 	});
 	
 	app.post('/signup', function(req, res){
-		AM.addNewAccount({
+		am.addNewAccount({
 			name 	: req.param('name'),
 			email 	: req.param('email'),
 			user 	: req.param('user'),
@@ -111,7 +113,7 @@ module.exports = function(app) {
 
 
 	
-	app.get('/collections', function(req, res) { res.render('collections', { title: 'My Collections', countries:CT}); });
+	app.get('/collections', function(req, res) { res.render('collections', { title: "hi", countries:CT}); });
 	
 	app.get('/browse', function(req, res) { res.render('browse', { title: 'Browse Tags', countries:CT}); });
 // password reset //

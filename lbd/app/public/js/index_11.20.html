@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - particles - dynamic - postprocessing</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+		    body {
+			color: #fff;
+			font-family:Monospace;
+			font-size:13px;
+			text-align:center;
+			font-weight: bold;
+
+			background-color: #000;
+			margin: 0px;
+			overflow: hidden;
+		    }
+
+		    #info {
+					color:#fff;
+			position: absolute;
+			top: 0px; width: 100%;
+			padding: 5px;
+
+		    }
+
+		    a { color: green; }
+
+		</style>
+
+	</head>
+	<body>
+
+		<div id="content" style="height:100%;width:100%;">
+			<a>WELCOME TO LITTLE BOAT DREAMS</a></br>
+		</div>
+		<div id="lightbox"style="padding-top:50px; opacity:.5; height:100%;">
+				<p>
+				</p>
+			</div>
+		<!-- <div id="wrapper">
+				<section class="content"style="z-index:1000000;">
+					<section id="options">
+						<div class="clearfix" style="padding-top:5px z-index:1000000;">
+						   	<ul class="clearfix">
+						      <li id="insert"><a href="#insert">Insert new elements</a></li>
+						      <li id="append"><a href="#append">Append new elements</a></li>
+						      <li id="prepend"><a href="#prepend">Prepend</a></li>
+						    </ul>
+						</div>
+					  </section>
+						<div id="container2" class="clearfix" onLoad="fakeElement.getGroup()"></div>
+						<script src ="js/jquery.min.js"></script>
+						<script src="js/isotope/jquery.isotope.min.js"></script>
+						<script src="js/imgBoxMaker.js"></script>
+						<script src="js/fake-elements.js"></script>
+						<script>
+							$(function(){
+						      var $container = $('#container2');
+						      $('#insert a').click(function(){
+						        var $newEls = $( fakeElement.getGroup() );
+						        $container.isotope( 'insert', $newEls );
+						        return false;
+						      });
+
+						      $('#append a').click(function(){
+						        var $newEls = $( boxMaker.makeBoxes() );
+						        $container.append( $newEls ).isotope( 'appended', $newEls );
+						        return false;
+						      });
+
+						      $('#prepend a').click(function(){
+						        var $newEls = $( fakeElement.getGroup() );
+						        $container
+						          .prepend( $newEls ).isotope('reloadItems').isotope({ sortBy: 'original-order' })
+						          // set sort back to symbol for inserting
+						          .isotope('option', { sortBy: 'symbol' });
+
+						        return false;
+						      });
+
+						      $container.isotope({
+						        itemSelector : '.element',
+						        filter: '*',
+						        getSortData : {
+						          symbol : function( $elem ) {
+						            return $elem.attr('data-symbol');
+						          }
+						        },
+						        sortBy : 'symbol'
+						      });
+
+						    });
+
+						</script>
+					</section>
+			</div> -->
+		<div id="container"></div>
+
+
+		<script src="js/Three.js"></script>
+		<script src="js/Tween.js"></script>
+		<script src="js/ShaderExtras.js"></script>
+		<script src="js/postprocessing/EffectComposer.js"></script>
+		<script src="js/postprocessing/MaskPass.js"></script>
+		<script src="js/postprocessing/RenderPass.js"></script>
+		<script src="js/postprocessing/BloomPass.js"></script>
+		<script src="js/postprocessing/ShaderPass.js"></script>
+		<script src="js/postprocessing/FilmPass.js"></script>
+		<script src="js/Detector.js"></script>
+
+		<script>
+
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+			var container, stats, tpCamera, scene_landscape, webglRenderer, projector, controls;
+			var firstPerson, thirdPerson;
+			
+			var SCREEN_HEIGHT = window.innerHeight, SCREEN_WIDTH = window.innerWidth;
+			var renderer, mesh, directionalLight;
+
+			var p;
+			var parent, meshes = [];
+			var aloader, bloader;
+			var total = 0, totaln = 0;
+			var composer, effectFocus;
+			
+			var fogHex = [0x170a03, 0x0f0500, 0x0d0401, 0x0b000d, 0x2b1306]
+			var waypoint_1 = new THREE.Vector3(0,0,0);
+			var waypoint_2 = new THREE.Vector3(1000,1000,0);
+			var clock = new THREE.Clock();
+			
+			var myAudio = new Audio('audio/LittleBoatDreams.audio.V.3.mp3'); 
+			var clicks =0;
+			
+		/**	
+			var fpCamera = function(){
+				this.parent = new THREE.Object3D();
+				this.host = null;
+				this.fov = 75;
+				this.aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
+				this.near = 1;
+				this.far = 50000;
+				this.camera = new THREE.PerspectiveCamera(
+					this.fov, this.aspect, this.near, this.far
+				);
+				this.enabled = true;
+				this.position = new THREE.Vector3(0,0,0);
+				this.parent.position = this.position;
+			}
+			fpCamera.prototype = {
+				display: function(scene){
+							if(this.enabled)
+							scene.add(this);	
+						},
+				setHost: function(object){
+					this.host = object
+					this.parent.add(this.host);
+					this.parent.add(this);
+				}	
+			}
+			
+		**/
+		
+			
+			init();
+			animate();
+
+			function init() {
+				container = document.getElementById( 'container' );
+				parent = new THREE.Object3D();
+				
+				firstPerson = new THREE.Object3D();
+				firstPerson.position = new THREE.Vector3(0,0,0);
+				
+				aloader = new THREE.JSONLoader( );
+				bloader = new THREE.BinaryLoader( true );
+				
+				scene_landscape = new THREE.Scene();
+				scene_landscape.fog = new THREE.FogExp2( 0x000000, 0.0000675 );
+				
+				//var boat = 
+				_initBoat(firstPerson);
+
+				fpCamera = new THREE.PerspectiveCamera(75, SCREEN_WIDTH/SCREEN_HEIGHT, 1, 50000);
+				fpCamera.position = new THREE.Vector3(firstPerson.position.x, firstPerson.position.y+100, firstPerson.position.z );
+				
+				firstPerson.add(fpCamera);
+				console.log(firstPerson);
+				controls = new THREE.FlyControls( firstPerson );
+				controls.movementSpeed = 500;
+				controls.domElement = container;
+				controls.rollSpeed = Math.PI / 6;
+				controls.autoForward = false;
+				controls.dragToLook = true;	
+				
+				var light = new THREE.DirectionalLight(0x0000aa,.25);
+				light.position.set(0,1,0);
+				scene_landscape.add(light);
+				
+				scene_landscape.add( firstPerson);
+				
+				_initGround();
+
+
+				
+				document.body.appendChild( bloader.statusDomElement );
+
+				_init_Landscape(200,20);
+
+				renderer = new THREE.WebGLRenderer({
+					 	clearColor: 0x000000,
+						clearAlpha: 1,
+						antialias: true
+				});
+				
+				renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+				
+				renderer.autoClear = false;
+				renderer.sortObjects = true;
+				
+				container.appendChild( renderer.domElement );
+				renderer.setClearColor( scene_landscape.fog.color, 1 );
+				
+				scene_landscape.add( parent );
+
+				_init_postProcessing();
+
+				window.addEventListener( 'resize', onWindowResize, false );
+				myAudio.addEventListener('ended', onAudioEnd, false);
+				myAudio.play();
+				window.addEventListener('click', onMouseUp, false);
+			}
+// Mr.Doob Camera Animations
+/**			
+			View3D.prototype.onCameraAnimUpdate = function (){
+			    var currentPos = Util.lerp(this.startPos, this.endPos, this.param.t);
+			    var currentLookAt = Util.lerp(this.startLookAt, this.endLookAt, this.param.t);
+			    this.camera.position.set(currentPos.x, currentPos.y, currentPos.z);
+			    this.camera.lookAt(currentLookAt);      
+			}
+			View3D.prototype.onCameraAnimComplete = function (){
+			    this.createControlsForCamera();
+			    this.controls.target = this.endLookAt;
+			}
+			View3D.prototype.fitAll = function (viewToFit, center, radius, animate){               
+			    var radius = radius;
+			    var aabbCenter = center;
+
+			    // Compute offset needed to move the camera back that much needed to center AABB (approx: better if from BB front face)
+			    var offset = radius / Math.tan(Math.PI / 180.0 * 25 * 0.5); 
+
+			    // Compute new camera direction and position
+			    var dir = new THREE.Vector3(0.0, 0.0, 1.0);
+			    if (this.camera != undefined)
+			        dir = this.camera.matrix.getColumnZ();
+			    dir.multiplyScalar(offset); 
+			    var newPos = new THREE.Vector3();
+			    newPos.add(aabbCenter, dir);
+
+			    // Update camera
+			    if (!animate){
+			        this.camera.position.set(newPos.x, newPos.y, newPos.z);
+			        this.camera.lookAt(aabbCenter);                     
+			        this.createControlsForCamera();
+			        this.controls.target = aabbCenter;
+			    }
+			    else {
+			        this.startPos = this.camera.position.clone();
+			        this.startLookAt = this.controls.target;
+			        this.endPos = newPos;
+			        this.endLookAt = aabbCenter;
+
+			        this.param = {t: 0};
+			        this.anim = new TWEEN.Tween(this.param).to({t: 1.0}, 500 ).easing( TWEEN.Easing.Sinusoidal.EaseInOut);
+
+			        this.anim.onUpdate(Util.bind(this, this.onCameraAnimUpdate));
+			        this.anim.onComplete(Util.bind(this, this.onCameraAnimComplete));
+			        this.anim.start();
+			    } 
+			}
+**/
+// Begin Callbacks
+			function onMouseUp(event){
+				sceneManager.nextScene();
+				// event.preventDefault();
+				// console.log(firstPerson.fpCamera);
+				// new TWEEN.Tween(firstPerson.object.position).to({
+				// 	x:1000,
+				// 	y:1000,
+				// 	z:1000
+				// }).easing(TWEEN.Easing.EaseInOut).start();
+			}	
+			function boatCallback(geometry, master){
+				var boat = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial({
+					 	ambient: 0x555555,
+						color: 0xffFFff,
+						specular: 0xffffff,
+						shininess: 50,
+						shading: THREE.SmoothShading
+					})
+				);
+				
+				boat.position.x = boat.position.y = boat.position.z = 0.0;
+				boat.scale.x = boat.scale.y = boat.scale.z = 200.0;
+				master.add( boat );	
+			}			
+			function _initBoat(master){
+				aloader.load( "obj/boatMeshOnly.min.js", function(geometry){
+					boatCallback(geometry, master);
+				} );
+			}
+			function createMesh( originalGeometry, scene_landscape, scale, x, y, z, color, dynamic ) {
+				var i, c;
+				var vertices = originalGeometry.vertices;
+				var vl = vertices.length;
+				var geometry = new THREE.Geometry();
+				var vertices_tmp = [];
+				
+				for ( i = 0; i < vl; i ++ ) {
+					p = vertices[ i ];
+					geometry.vertices[ i ] = p.clone();
+					vertices_tmp[ i ] = [ p.x, p.y, p.z, 0, 0 ];
+				}
+				var material = new THREE.ParticleBasicMaterial({
+				//	map: THREE.ImageUtils.loadTexture( "textures/sprites/spark1.png" ),
+					size: 10,
+					color: color
+				});
+				
+				mesh = new THREE.ParticleSystem( geometry, material);
+				mesh.scale.x = mesh.scale.y = mesh.scale.z = scale;
+				mesh.position.x = x;
+				mesh.position.y = y;
+				mesh.position.z = z;
+
+				parent.add( mesh );
+
+				totaln += 1;
+				total += vl;
+
+				bloader.statusDomElement.style.display = "none";
+
+				meshes.push( {
+					mesh: mesh,
+					vertices: geometry.vertices,
+					vl: vl,
+					down: 0,
+					up: 0,
+					direction: 0
+				});
+			}
+			function _init_postProcessing(){
+				var renderModel = new THREE.RenderPass( scene_landscape, fpCamera );
+				var effectBloom = new THREE.BloomPass( 0.75 );
+				var effectFilm = new THREE.FilmPass( 0.5, 0.5, 1448, false );
+				effectFocus = new THREE.ShaderPass( THREE.ShaderExtras[ "focus" ] );
+
+				effectFocus.uniforms[ "screenWidth" ].value = window.innerWidth*2;
+				effectFocus.uniforms[ "screenHeight" ].value = window.innerHeight*2;
+
+				effectFocus.renderToScreen = true;
+
+				composer = new THREE.EffectComposer( renderer );
+
+				composer.addPass( renderModel );
+				composer.addPass( effectBloom );
+				composer.addPass( effectFilm );
+				composer.addPass( effectFocus );
+			}
+			function _initGround(){
+				var grid = new THREE.ParticleSystem( 
+					new THREE.PlaneGeometry( 15000, 15000, 64, 64 ),
+					new THREE.ParticleBasicMaterial({
+						color: 0x000000,
+						size: 15
+					})
+				);
+				
+				var grid2 = new THREE.Mesh(
+					new THREE.PlaneGeometry( 15000, 15000, 64, 64),
+					new THREE.MeshLambertMaterial({
+						color: 			0xFFFFFF,
+						transparent: 	true,
+						opacity:		0.25
+					})
+				);
+				
+				grid.position.y = 0;
+				grid2.position.y = 0;
+				
+				parent.add( grid);
+				parent.add(grid2);
+				
+				totaln += 1;
+				total += grid.geometry.vertices.length;
+			}
+			function _init_Landscape(scale, incr){
+				bloader.load("obj/islandElevationObjs/elev_0.js", function( geometry ) {
+					createMesh(geometry, scene_landscape, scale, 0, 0*incr, 0, 0xFFFFFF,false);//0xC71C1C,false);
+				});
+				bloader.load("obj/islandElevationObjs/elev_20.js", function( geometry ) {
+					createMesh(geometry, scene_landscape, scale, 0, 1*incr, 0,0xFFFFFF,false);// 0xEDB51A,false);
+				});
+				bloader.load("obj/islandElevationObjs/elev_100.js", function( geometry ) {
+					createMesh(geometry, scene_landscape, scale,0, 2*incr, 0xffffff,false);//0,0xEDF553,false);
+				});
+				bloader.load("obj/islandElevationObjs/elev_200.js", function( geometry ) {
+					createMesh(geometry, scene_landscape, scale,0, 3*incr, 0,0xffffff,false);// 0,0x31E319,false);
+				});	
+				bloader.load("obj/islandElevationObjs/elev_300.js", function( geometry ) {
+					createMesh(geometry, scene_landscape, scale,0, 4*incr, 0,0xffffff,false);//0x19E3D5,false);
+				});	
+				bloader.load("obj/islandElevationObjs/elev_400.js", function( geometry ) {
+					createMesh(geometry, scene_landscape, scale,0, 5*incr, 0,0xffffff,false);//0x1931E3,false);
+				});
+				bloader.load("obj/islandElevationObjs/elev_500.js", function( geometry ) {
+					createMesh(geometry, scene_landscape, scale,0, 6*incr, 0xffffff,false);//0,0xCF19E3,false);
+				});
+			}		
+			function animate() {
+				requestAnimationFrame( animate );
+				render();
+			}
+			function render() {
+				var delta = clock.getDelta();
+			//	TWEEN.update();
+				controls.update( delta );
+				renderer.clear();
+				composer.render( 0.01 );
+			}			
+			function onWindowResize( event ) {
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				fpCamera.aspect = window.innerWidth / window.innerHeight;
+				fpCamera.updateProjectionMatrix();
+				fpCamera.lookAt( scene_landscape.position );
+				composer.reset();
+				effectFocus.uniforms[ "screenWidth" ].value = window.innerWidth;
+				effectFocus.uniforms[ "screenHeight" ].value = window.innerHeight;
+			}
+			function onAudioEnd(event){
+				this.currentTime = 0;
+			    this.play();
+			}
+			function space(event){
+				alert("You Entered Archive Mode");
+			}
+			function displayunicode(event){
+				var unicode=event.keyCode? event.keyCode : event.charCode
+				alert(unicode)
+			}
+			
+		</script>
+	
+	
+	</body>
+</html>

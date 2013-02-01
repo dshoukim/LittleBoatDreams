@@ -1,5 +1,5 @@
 $(document).ready(function(){
-
+	
 	var hc = new HomeController();
 	var av = new AccountValidator();
 	

@@ -1,0 +1,3 @@
+LBD.Utils = function(){
+	
+}

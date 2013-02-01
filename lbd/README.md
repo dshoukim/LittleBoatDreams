@@ -11,7 +11,7 @@
 
 ***
 
-####Node-Login is built on top of the following libraries :
+####LBD is built on top of the following libraries :
 
 * [Node.js](http://nodejs.org/) - Application Server
 * [Express.js](http://expressjs.com/) - Node.js Web Framework
@@ -31,12 +31,8 @@ A [Live Demo](http://node-login.braitsch.io) and [some thoughts about the app's 
 ####Installation & Setup
 This assumes you already have node.js & npm installed.
 ```
-git clone git://github.com/braitsch/node-login.git node-login
-cd node-login
+git clone git://github.com/dshoukim/littleboatdreams
+cd littleboatdreams
 npm install -d
-node app
+node app.js
 ```
-For testing purposes, I've provided a [database dump of all accounts here.](http://node-login.braitsch.io/print)  
-Please note this list and the entire database automatically resets every 24 hours.
-
-Questions and suggestions for improvement are welcome.

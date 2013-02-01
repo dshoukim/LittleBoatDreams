@@ -8,16 +8,24 @@ var dbHost 		= global.host;
 var dbName 		= 'lbdatabase';
 
 /* establish the database connection */
+var mongoose = require('mongoose');
+//var Schema = mongoose.Schema;
 
-var db = new MongoDB(dbName, new Server(dbHost, dbPort, {auto_reconnect: true}), {w: 1});
-	db.open(function(e, d){
-	if (e) {
-		console.log(e);
-	}	else{
-		console.log('connected to database :: ' + dbName);
-	}
-});
-var accounts = db.collection('accounts');
+var accounts = require('../models/accounts');
+//console.log(accounts);
+
+// var db = new MongoDB(dbName, new Server(dbHost, dbPort, {auto_reconnect: true}), {w: 1});
+// 	db.open(function(e, d){
+// 	if (e) {
+// 		console.log(e);
+// 	}	else{
+// 		console.log('connected to database :: ' + dbName);
+// 	}
+// });
+
+							
+//var accounts = db.collection('accounts');
+// user
 
 /* login validation methods */
 
@@ -188,4 +196,9 @@ var findByMultipleFields = function(a, callback)
 		if (e) callback(e)
 		else callback(null, results)
 	});
+}
+
+var getCollectionsByID = function(id)
+{
+	accounts.find({})
 }

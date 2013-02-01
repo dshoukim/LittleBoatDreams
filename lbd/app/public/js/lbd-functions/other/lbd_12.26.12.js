@@ -11,7 +11,20 @@ var LBD.Tag = function(filepath){
 	this.transcription = "";
 	this.categories = [];
 }
+LBD.Tag.prototype.getIDfromIMG = function(img){
+	//use tag_ + image url.
+	img
+}
+LBD.Tag.prototype.getIMGfromID = function(id)
+{
+	var idstring  = toString(id);
+	idstring = "tag_" + idstring;
+	return idstring;
+}
+LBD.Tag.prototype.textureFromTagURL = function(src)
+{
 
+}
 LBD.Tag.prototype.addToCollection = function(collection)
 {
 	
